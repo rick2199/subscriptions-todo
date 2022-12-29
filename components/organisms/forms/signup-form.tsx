@@ -44,6 +44,9 @@ const SignupForm = () => {
               password,
               options: {
                 emailRedirectTo: process.env.NEXT_PUBLIC_SITE_URL,
+                data: {
+                  email,
+                },
               },
             });
             if (error) {
