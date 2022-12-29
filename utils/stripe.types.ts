@@ -6,12 +6,12 @@ export interface PageMeta {
 }
 
 export interface Customer {
-  id: string /* primary key */;
+  id: string;
   stripe_customer_id?: string;
 }
 
 export interface Product {
-  id: string /* primary key */;
+  id: string;
   active?: boolean;
   name?: string;
   description?: string;
@@ -24,7 +24,7 @@ export interface ProductWithPrice extends Product {
 }
 
 export interface UserDetails {
-  id: string /* primary key */;
+  id: string;
   first_name: string;
   last_name: string;
   full_name?: string;
@@ -34,7 +34,7 @@ export interface UserDetails {
 }
 
 export interface Price {
-  id: string /* primary key */;
+  id: string;
   product_id?: string /* foreign key to products.id */;
   active?: boolean;
   description?: string;
@@ -51,7 +51,7 @@ export interface Price {
 export interface PriceWithProduct extends Price {}
 
 export interface Subscription {
-  id: string /* primary key */;
+  id: string;
   user_id: string;
   status?: Stripe.Subscription.Status;
   metadata?: Stripe.Metadata;
