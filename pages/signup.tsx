@@ -1,16 +1,16 @@
-import { LoginForm } from "@/components/organisms/forms";
-import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
+import { SignupForm } from "@/components/organisms/forms";
 import { GetServerSidePropsContext } from "next";
+import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
 
-const Login = () => {
+const Signup = () => {
   return (
     <div className="max-w-sm mx-auto">
-      <LoginForm />
+      <SignupForm />
     </div>
   );
 };
 
-export default Login;
+export default Signup;
 
 export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   const supabase = createServerSupabaseClient(ctx);

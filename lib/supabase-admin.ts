@@ -1,8 +1,8 @@
 import { createClient } from "@supabase/supabase-js";
 import { stripe } from "./stripe";
-import { toDateTime } from "./helpers";
-import { Price, Product } from "./stripe.types";
-import type { Database } from "./database.types";
+import { toDateTime } from "../utils/helpers";
+import { Price, Product } from "../utils/stripe.types";
+import type { Database } from "../utils/database.types";
 import Stripe from "stripe";
 
 // Note: supabaseAdmin uses the SERVICE_ROLE_KEY which you must only use in a secure server-side context

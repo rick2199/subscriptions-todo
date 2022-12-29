@@ -1,77 +1,21 @@
-import {
-  useUser,
-  useSupabaseClient,
-  SupabaseClient,
-  useSession,
-} from "@supabase/auth-helpers-react";
+import { useSupabaseClient } from "@supabase/auth-helpers-react";
 import { Database } from "../utils/database.types";
 import Avatar from "@/components/avatar";
 import { useMachine } from "@xstate/react";
 import authenticationMachine from "@/machines/auth-machine";
-type Users = Database["public"]["Tables"]["users"]["Row"];
+import { GetServerSidePropsContext } from "next";
+import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
+import { getProfile, updateProfile, Users } from "@/utils/helpers";
 
-const getProfile: any = async ({
-  userId,
-  supabase,
-}: {
-  userId: string;
-  supabase: SupabaseClient<any, "public", any>;
-}) => {
-  if (!userId) throw new Error("No user");
-
-  let { data, error, status } = await supabase
-    .from("users")
-    .select()
-    .eq("id", userId)
-    .single();
-
-  if (error && status !== 406) {
-    throw error;
-  }
-
-  return {
-    full_name: data?.full_name,
-    avatar_url: data?.avatar_url,
+interface Props {
+  data: {
+    dbUser: Users;
   };
-};
+}
 
-const updateProfile: any = async ({
-  userId,
-  full_name,
-  avatar_url,
-  supabase,
-}: {
-  userId: string;
-  full_name: Users["full_name"];
-  avatar_url: Users["avatar_url"];
-  supabase: SupabaseClient<any, "public", any>;
-}) => {
-  try {
-    if (!userId) throw new Error("No user");
-    const updates = {
-      id: userId,
-      full_name,
-      avatar_url,
-    };
-    let { error } = await supabase
-      .from("users")
-      .upsert(updates)
-      .eq("id", userId);
-
-    console.log({ error });
-
-    if (error) throw error;
-    alert("Profile updated!");
-  } catch (error) {
-    alert("Error updating the data!");
-    console.log(error);
-  }
-};
-
-export default function Account() {
+const Account: React.FC<Props> = ({ data }) => {
+  const { dbUser: user } = data;
   const supabase = useSupabaseClient<Database>();
-  const session = useSession();
-  const user = useUser();
 
   const [current, send] = useMachine(authenticationMachine, {
     services: {
@@ -92,51 +36,73 @@ export default function Account() {
 
   return (
     <div className="form-widget">
-      <>
-        <pre>{JSON.stringify(current.value)}</pre>
-        <pre>{JSON.stringify(current.context)}</pre>
-        <Avatar
-          uid={user?.id as string}
-          url={avatar_url as string}
-          size={150}
-          onUpload={(url) => {
-            send({ type: "avatarUrlInputChanged", avatar_url: url });
-            send("submit");
-          }}
+      <pre>{JSON.stringify(current.value)}</pre>
+      <pre>{JSON.stringify(current.context)}</pre>
+      <Avatar
+        uid={user?.id as string}
+        url={avatar_url as string}
+        size={150}
+        onUpload={(url) => {
+          send({ type: "avatarUrlInputChanged", avatar_url: url });
+          send("submit");
+        }}
+      />
+      <div>
+        <label htmlFor="email">Email</label>
+        <input id="email" type="text" value={user?.email || ""} disabled />
+      </div>
+      <div>
+        <label htmlFor="fullName">FullName</label>
+        <input
+          placeholder={fullName}
+          type="text"
+          onChange={(e) =>
+            send({ type: "fullNameInputChanged", fullName: e.target.value })
+          }
         />
-        <div>
-          <label htmlFor="email">Email</label>
-          <input id="email" type="text" value={session?.user.email} disabled />
-        </div>
-        <div>
-          <label htmlFor="fullName">FullName</label>
-          <input
-            placeholder={fullName}
-            type="text"
-            onChange={(e) =>
-              send({ type: "fullNameInputChanged", fullName: e.target.value })
-            }
-          />
-        </div>
+      </div>
 
-        <div>
-          <button
-            className="button primary block"
-            onClick={() => send("submit")}
-          >
-            Update
-          </button>
-        </div>
+      <div>
+        <button className="button primary block" onClick={() => send("submit")}>
+          Update
+        </button>
+      </div>
 
-        <div>
-          <button
-            className="button block"
-            onClick={() => supabase.auth.signOut()}
-          >
-            Sign Out
-          </button>
-        </div>
-      </>
+      <div>
+        <button
+          className="button block"
+          onClick={() => supabase.auth.signOut()}
+        >
+          Sign Out
+        </button>
+      </div>
     </div>
   );
-}
+};
+
+export default Account;
+
+export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
+  const supabase = createServerSupabaseClient(ctx);
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session)
+    return {
+      redirect: {
+        destination: "/login",
+        permanent: false,
+      },
+    };
+
+  const { data } = await supabase.from("users").select("*");
+
+  return {
+    props: {
+      data: {
+        dbUser: data ? { ...data[0] } : [],
+      },
+    },
+  };
+};

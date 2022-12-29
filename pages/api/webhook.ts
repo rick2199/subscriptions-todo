@@ -1,9 +1,9 @@
-import { stripe } from "@/utils/stripe";
+import { stripe } from "@/lib/stripe";
 import {
   upsertProductRecord,
   upsertPriceRecord,
   manageSubscriptionStatusChange,
-} from "@/utils/supabase-admin";
+} from "@/lib/supabase-admin";
 import { NextApiRequest, NextApiResponse } from "next";
 import Stripe from "stripe";
 import { Readable } from "node:stream";

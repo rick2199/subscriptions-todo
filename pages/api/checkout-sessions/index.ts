@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { stripe } from "@/utils/stripe";
-import { supabase } from "@/utils/supabase";
+import { stripe } from "@/lib/stripe";
+import { supabase } from "@/lib/supabase";
 
 const monthlyPrice = process.env.STRIPE_MONTHLY_PRICE as string;
 const annualPrice = process.env.STRIPE_YEARLY_PRICE as string;
@@ -22,7 +22,6 @@ export default async function handler(
       const { data, error } = await supabase.auth.getUser(token as string);
       if (error) throw error;
       const userId = data.user.id;
-      console.log({ userId });
 
       const { data: userData } = await supabase
         .from("users")

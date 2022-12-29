@@ -1,12 +1,10 @@
-import { stripe } from "@/utils/stripe";
-import { supabase } from "@/utils/supabase";
+import { stripe } from "@/lib/stripe";
+import { supabase } from "@/lib/supabase";
 import { NextApiRequest, NextApiResponse } from "next";
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-  console.log({ body: req.body });
-
   const customer = await stripe.customers.create({
-    email: req.body.record.email,
+    email: (req.body.record.email as string).toLowerCase(),
   });
 
   const { error } = await supabase
