@@ -6,11 +6,11 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const customer = await stripe.customers.create({
     email: (req.body.record.email as string).toLowerCase(),
   });
-  console.log({ customer });
+  const updates = { ...req.body.record, stripe_customer_id: customer.id };
 
   const { error, data } = await supabase
     .from("users")
-    .update({ stripe_customer_id: customer.id })
+    .upsert(updates)
     .eq("id", req.body.record.id);
 
   if (error) {
