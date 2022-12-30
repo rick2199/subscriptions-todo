@@ -35,7 +35,7 @@ export interface UserDetails {
 
 export interface Price {
   id: string;
-  product_id?: string /* foreign key to products.id */;
+  product_id?: string;
   active?: boolean;
   description?: string;
   unit_amount?: number;
@@ -55,7 +55,7 @@ export interface Subscription {
   user_id: string;
   status?: Stripe.Subscription.Status;
   metadata?: Stripe.Metadata;
-  price_id?: string /* foreign key to prices.id */;
+  price_id?: string;
   quantity?: number;
   cancel_at_period_end?: boolean;
   created: string;

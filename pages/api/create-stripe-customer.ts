@@ -8,7 +8,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   });
   const updates = { ...req.body.record, stripe_customer_id: customer.id };
 
-  const { error, data } = await supabase
+  const { error } = await supabase
     .from("users")
     .upsert(updates)
     .eq("id", req.body.record.id);
@@ -19,7 +19,18 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     res.end();
     return;
   }
-  console.log({ data });
+  const { data } = await supabase
+    .from("prices")
+    .select("id")
+    .eq("unit_amount", 0)
+    .eq("active", true);
+
+  const priceId = data ? data[0].id : [];
+
+  await stripe.subscriptions.create({
+    customer: customer.id,
+    items: [{ price: priceId }],
+  });
 
   res.send({ message: `stripe customer id created ${customer.id}` });
 };
