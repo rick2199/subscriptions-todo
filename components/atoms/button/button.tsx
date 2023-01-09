@@ -10,6 +10,7 @@ interface ButtonProps {
   className?: string;
   type?: "button" | "submit";
   disabled?: boolean;
+  color?: string;
 }
 
 const sora = Sora({ subsets: ["latin"] });
@@ -20,6 +21,7 @@ const Button: React.FC<ButtonProps> = ({
   handleClick,
   className,
   type = "submit",
+  color,
   disabled = false,
 }) => {
   return (
@@ -32,7 +34,9 @@ const Button: React.FC<ButtonProps> = ({
           className={`w-full ${
             disabled
               ? "bg-[#CCCDD2] text-[#050505]"
-              : "bg-[#CAFCE6] text-[#11623F] hover:bg-[#8CF8C9]"
+              : !color
+              ? "bg-primary-dark text-white hover:bg-primary-light"
+              : color
           }  py-[10px] rounded-md !text-xl ${className ? className : ""}`}
         >
           <Heading className={sora.className} size="sm">

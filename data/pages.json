@@ -1,0 +1,12 @@
+[
+  {
+    "label": "Pricing",
+    "path": "/pricing",
+    "children": []
+  },
+  {
+    "label": "Account",
+    "path": "/account",
+    "children": []
+  }
+]

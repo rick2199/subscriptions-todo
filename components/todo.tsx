@@ -1,6 +1,7 @@
 import { useMachine } from "@xstate/react";
 
 import { todosMachine } from "@/machines/todo-machine";
+import { Heading } from "./atoms/heading";
 
 const todos = new Set<string>([]);
 
@@ -21,8 +22,6 @@ const Todo = () => {
 
   return (
     <div>
-      <pre>{JSON.stringify(state.value)}</pre>
-      <pre>{JSON.stringify(state.context)}</pre>
       <div>
         {state.matches("Todos Loaded") && (
           <>
@@ -83,14 +82,17 @@ const Todo = () => {
               });
             }}
           >
-            <input
-              onChange={(e) => {
-                send({
-                  type: "Form input changed",
-                  value: e.target.value,
-                });
-              }}
-            ></input>
+            <label>
+              <Heading>Add your todo</Heading>
+              <input
+                onChange={(e) => {
+                  send({
+                    type: "Form input changed",
+                    value: e.target.value,
+                  });
+                }}
+              ></input>
+            </label>
           </form>
         )}
       </div>

@@ -1,7 +1,7 @@
 import { assign, createMachine } from "xstate";
 
 export interface User {
-  fullName: string;
+  full_name: string;
   avatar_url: string;
 }
 
@@ -25,9 +25,6 @@ export type AuthenticationMachineEvent =
       type: "submit";
     }
   | {
-      type: "updateInfo";
-    }
-  | {
       type: "done.invoke.userProfile.fetchingUser:invocation[0]";
       data: User;
     }
@@ -37,11 +34,11 @@ export type AuthenticationMachineEvent =
     };
 
 const authenticationMachine =
-  /** @xstate-layout N4IgpgJg5mDOIC5QFdZgE4AV0HsBmAlgDZgB0eYALgMYAWBAdlAKproDEEODZjAbjgDWZVBmz5iZCjXpNWGBPxzUAhpQLcA2gAYAujt2JQABxywC67kZAAPRAFoAjAE5HpAKzOAzAA5f27XdHHwAmbRCAGhAAT0R3bQA2Ui9Axy8Adi9HbRd0kIBffKjRLFxCEnIqOkYWNnYMXHRSYyI1PBx0AFtSEvFyqSrZWoUlVUsGAwNrU3Nx6zsEe19nUgAWEMd1kPSfBK8QhJ9VqNiEBPSVn3cE8O1nV2cQo8Litj7JHrYAMUHIdmRjBA1GAAJIMdpTJAgGYWDQMeaITbpUhPBLuEIbPYXK7pE6IHbuUiOa4heIJBIHDKOF4gXplD4AoHqORsUgECAQEjsWDIABGnQskJMZlhVihC2CIVIAWcV2cQQ2pNJeIQqx8bi8j1WXnWjmCfhpdIkFUZahq8iapsoYAtDBUnTIsFoOAA7ua2HaHWDjMhKP8PfbQQwfZQAMK0FRMSBC6EiuZQ05pKXq7V3Db6lIJKILLzklGrILOdJo9UJYmrQ1vekmwFmlkYHq1622wOkJ2u90YT1BkPcvkCygxmHx0ALJ7aZI7HLadKbUI5LMxRBXIm5q7uYsJVbpGfOStiasiJudy1NsAAdTAvNmjudbqYl+vFh7vvYLqvN+9vvDkZgECHcZwtYpz2M4E6bNquYpCEXjuJqXjZogOorBcep3AqjhKvupTGkeTIno2TIXh+z5tneNSPp+wavjy-KCno0yAWKo5IasKGuNk8qYZh6Iqk4vhEqskF7OEsHwdh7w1vh9ankRACCfBqCo6DMOgRBkR2TAKUpKlqV+foqIplDKapRD6T+Ub-gxULDkBCZISEqykCmKSPHqPh+IhCC5hO2gec424lo4ZbuBWRS0lWuGEXWwyycC2nGbp6ntveUAJSZenUX6tEDgBsx2Sx3k3NK-mBe4pbliq2xJC5abuQa4VGv00XMrFLU2nUXA8GyDACMInwHlFVoEVaHUjL1yhmloeh5aK8LikhxKkGB2hqgW3FKiqaoalqOrph5XgSYeLUjWeFr1OgjTNK0lDtF0A04c1w0ye1FqKBNYxwpM1nCvlzG2EhWSkOc6TovEOzBGWKohR424+LOqx+at6RheFDA4BAcDWE1kiMX982FfYQluBDIT3I4Fxk9oCFLossFSlu2qOeVqyYWWYWvINzXSNUMl43NCJ094pCk+TlNgTTpzxE5TzBT44TOHsByrUdQ3fL8ED8yOAOLJ4It+MSq2hbkvjQ9qzmzuEKNG2WqtPcefM2UxBM6-Y7iEhTxaI2qOwo6Dxy0-YBwe0J+xHGBYRhBzEVcwyDtteynJgFrBWu8intbqt8Pw9uoVbYczmbK5+0NZzj1x9JbWjS2Dop-9Cz2EkmGyqJrN+Ec1xbYSWTanB3uK8Fe6NZF9uVxar0Bg6GmpTXL6UHXLsLKzFs5EWQUhUJKpJoXqZuRmiR2xXMXj6NlHPgvgv2On6Re1nvu5wHIGe8Dof7JqFI7IfUnH6yp8kda08KL-znhfBaqoJyhBgp4DCSpViLhAmBQSwloJiW8F-PCP8GyjXSklUBhMm5k3ljBNuvgCzwMQDBZEPdthPFciSaOONv6tRPmeHBplAFaSMhlMyWU8E62XvDVexZyrBXLI-ByTlap7wOugk6L1q5sD4QseWGpsicTlLOe4KovAZCJOieC6Yb4+DQcPWOJp1YyEgAAUUuh0SASiHC+B8MDA2xt5ShXcSqeWhJrjsyyKFL2BRTHl3MRgZgZ4IA2MaPYp2+NL56kJGtDYrhNSK32OIhAfgVj7BvijYIsEgjUkKPkIAA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QEMBuyAuyBOA6AZmBgMYAWAlgHZQCqsY2AxBAPaVi5WosDWHamHASJkqtetgRcWxTOTYBtAAwBdZSsSgADi1jkM8yppAAPRAFoAjAE5LuAKzWAzAA5XSpfcsuATEp8ANCAAnoj2SgBsuE6elk4A7E6WSjbxPgC+6UECWHiEJBTUdAyMDNgseFoANpj4FQC2uDlC+aJFElKU3LIGiqrqxjp6vUZIphau1rgALD6Wsz7xLhFOPhEu00GhCBHxUy72Ef5K1rbWPhuZ2ei5uACuWhBy7Qy4sKQsAO5ixdiUyPUwABJShaO4YRj4O5VKoAOQBwNB4IAwqRkNRIAMxkN9IZjNtrBEgmYEEl4rhUk5HF45j57BksiBmngHk8DC88O8vj8JP9ASCwRDYHcAEb1fRY7S6XFsYwkskU6yJamWWn0raIaYuK5Mm5CVnPcSvLnfagAQT12Bo2CqAvBjGZ1ttSIwqPRMAgkpAOJGcsQSTsSmmlmS1hpqvVIU12sZzPuj0NvzeH1NUAtgitNrtQtF4owXp9eLG8pDuCDIZO4bpgSjCD80wcSwjOrjBowYF+zDYHGkfCalvjbI7HWkPUM6gL0t9xYs8SUuDnZODex81n88Q1O1LLjcax8SRSSoZ1wzg8ww5KZQquGqtQa-dPbYvklHcj6alUgynRdAJPMc4XJQl0sFc10WTddjsVxVgifdklSBlGUoFgIDgYxmS-YYf3GBBzGmYMFxcVVThA841ycTcrEWMsPA8Xw3FVEMWwHVpCiNbBMJlUZfwmZxCOI2xQKAzdwgbC5LHWfxCRgoNmMfBN2XYzjpx43D7HsCl4niCJpiDFwlniaZ4nsTZa3MJwpnCDxkkcJVznpew5NuNseWNFNXL+BFs2U7C-3JEDtN0rUDKMkzN0JJz9QUjzk25c1LSdbzsW-WUZ1w-ytJ0vSQuM0ztn3edHNjAcn1+HzUtU8y+KbVdBLI4TazXOxDgieYkhMwLj11R8JAAMREUhIAAUWwcpsEgcruJw8yd1wdZ2uDMMTKWzcXE8BwIla6YFs6zJMiAA */
   createMachine<AuthenticationMachineContext, AuthenticationMachineEvent>(
     {
       id: "userProfile",
-      initial: "fetchingUser",
+      initial: "iddle",
       context: {
         user: null,
         errorMessage: undefined,
@@ -59,6 +56,13 @@ const authenticationMachine =
         },
       },
       states: {
+        iddle: {
+          after: {
+            1000: {
+              target: "fetchingUser",
+            },
+          },
+        },
         fetchingUser: {
           invoke: {
             src: "fetchUser",

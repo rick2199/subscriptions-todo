@@ -3,6 +3,7 @@ import { useState } from "react";
 import { createBrowserSupabaseClient } from "@supabase/auth-helpers-nextjs";
 import { SessionContextProvider, Session } from "@supabase/auth-helpers-react";
 import { AppProps } from "next/app";
+import TodoProvider from "@/context/todo-context";
 
 function MyApp({
   Component,
@@ -17,7 +18,9 @@ function MyApp({
       supabaseClient={supabase}
       initialSession={pageProps.initialSession}
     >
-      <Component {...pageProps} />
+      <TodoProvider>
+        <Component {...pageProps} />
+      </TodoProvider>
     </SessionContextProvider>
   );
 }

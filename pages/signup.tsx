@@ -1,12 +1,17 @@
 import { SignupForm } from "@/components/organisms/forms";
 import { GetServerSidePropsContext } from "next";
 import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
+import { Heading } from "@/components/atoms/heading";
+import { Layout } from "@/components/layouts";
 
 const Signup = () => {
   return (
-    <div className="max-w-sm mx-auto">
-      <SignupForm />
-    </div>
+    <Layout user={null}>
+      <div className="max-w-sm px-6 md:px-0 mx-auto">
+        <Heading size="lg">Sign up</Heading>
+        <SignupForm />
+      </div>
+    </Layout>
   );
 };
 

@@ -1,14 +1,16 @@
-import React, { Dispatch, SetStateAction, useState } from "react";
+import React, { useState } from "react";
 import Image from "next/image";
-import { ErrorMessage, Field } from "formik";
+import { Field } from "formik";
 import { Heading } from "@/components/atoms/heading";
-import { Text } from "@/components/atoms/text";
+import { ErrorMessage } from "@/components/atoms/error-message";
+import Link from "next/link";
 interface TextFieldProps {
-  label: string;
-  touched: boolean;
-  error: string;
+  label?: string;
+  touched?: boolean;
+  error?: string;
   type: string;
-  placeHolder?: string;
+  placeholder?: string;
+  name?: string;
 }
 
 const TextField: React.FC<TextFieldProps> = ({
@@ -16,7 +18,8 @@ const TextField: React.FC<TextFieldProps> = ({
   touched,
   error,
   type,
-  placeHolder,
+  name,
+  placeholder,
 }) => {
   const input =
     typeof window !== "undefined"
@@ -38,39 +41,39 @@ const TextField: React.FC<TextFieldProps> = ({
     }
   };
   return (
-    <div className={`relative flex flex-col gap-1 !text-left`}>
-      <label className="flex justify-between">
-        <Heading size="sm">{label}</Heading>
-      </label>
+    <div className={`relative flex flex-col !text-left w-full`}>
+      {label && (
+        <label className="flex justify-between">
+          <Heading size="sm">{label}</Heading>
+        </label>
+      )}
       <Field
         type={
-          (type === "userName" && "text") ||
+          (type === "text" && "text") ||
           (type === "email" ? "email" : "password")
         }
         placeholder={`${
-          placeHolder
-            ? placeHolder
-            : (type === "userName" && "Enter a username") ||
-              (type === "email"
-                ? "youremail@domain.com"
-                : "Enter your password")
+          placeholder
+            ? placeholder
+            : type === "email"
+            ? "youremail@domain.com"
+            : "Enter your password"
         }`}
         id={`${type}id`}
         className={`w-full rounded border-2 bg-neutral-100 py-2 px-4 font-body ${
-          touched && error ? "border-[#FB2834]" : "focus:border-[#27F19A]"
+          touched && error ? "border-[#FB2834]" : "focus:border-primary-light"
         } focus:outline-none`}
-        name={type}
+        name={name ? name : type}
       />
 
       {touched && (
-        <ErrorMessage
-          name={type}
-          component={() => <Text className="text-[#FB2834]">{error}</Text>}
-        />
+        <>
+          <ErrorMessage error={error as string} name={name ? name : type} />
+        </>
       )}
       {type === "password" || type === "confirmPassword" ? (
-        <a
-          className="absolute top-9 right-2 cursor-pointer"
+        <button
+          className="absolute top-[32px] right-2 cursor-pointer"
           title={`${inputVisibility ? "View Password" : "Hide Password"}
       `}
           onClick={() => handleInputVisibility()}
@@ -87,11 +90,11 @@ const TextField: React.FC<TextFieldProps> = ({
             height={24}
             width={24}
           />
-        </a>
+        </button>
       ) : touched && error ? (
         <Image
           src={`/icons/error-icon.svg`}
-          className="absolute top-9 right-2"
+          className="absolute top-[32px] right-2"
           alt="eye-icon"
           height={24}
           width={24}

@@ -6,15 +6,15 @@ import { useRouter } from "next/router";
 import { TextField } from "@/components/molecules/form-fields";
 import { useState } from "react";
 import Link from "next/link";
-import { useSupabaseClient } from "@supabase/auth-helpers-react";
+import { useReactSupabaseClient } from "@/hooks/useReactSupabaseClient";
 
 const LoginForm = () => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const supabase = useSupabaseClient();
+  const { supabase } = useReactSupabaseClient();
 
   return (
-    <div className="h-full md:px-6 lg:px-0 bg-white text-center pt-[42px]">
+    <div className="h-full bg-white text-center pt-[42px]">
       <Formik
         initialValues={{
           email: "",
@@ -55,8 +55,12 @@ const LoginForm = () => {
               .single();
             if (dbUserError) {
               setErrors({ password: "User not found, please signup first" });
+              setLoading(false);
+              return;
             } else {
               setErrors({ password: error.message });
+              setLoading(false);
+              return;
             }
           }
           setLoading(false);
@@ -69,7 +73,7 @@ const LoginForm = () => {
               <TextField
                 label="Email"
                 type="email"
-                placeHolder="Enter your email"
+                placeholder="Enter your email"
                 error={errors.email as string}
                 touched={touched.email as boolean}
               />
@@ -81,13 +85,13 @@ const LoginForm = () => {
                   error={errors.password as string}
                   touched={touched.password as boolean}
                 />
-                <div className=" mt-1 flex flex-row items-start justify-between">
+                {/* <div className=" mt-1 flex flex-row items-start justify-between">
                   <Link href="/forgot-password" className="cursor-pointer">
                     <Text className="w-max text-end underline">
                       Forgot your password?
                     </Text>
                   </Link>
-                </div>
+                </div> */}
               </div>
 
               <div className="mt-6 w-full md:static">

@@ -1,11 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
 import { stripe } from "./stripe";
-import { toDateTime } from "../utils/helpers";
-import { Price, Product } from "../utils/stripe.types";
-import type { Database } from "../utils/database.types";
+import { toDateTime } from "@/utils/helpers";
+import { Price, Product } from "@/utils/stripe.types";
+import type { Database } from "@/utils/database.types";
 import Stripe from "stripe";
 
-const supabaseAdmin = createClient<Database>(
+export const supabaseAdmin = createClient<Database>(
   process.env.NEXT_PUBLIC_SUPABASE_URL || "",
   process.env.SUPABASE_SERVICE_ROLE_KEY || ""
 );
@@ -45,6 +45,25 @@ const upsertPriceRecord = async (price: Stripe.Price) => {
   console.log(`Price inserted/updated: ${price.id}`);
 };
 
+const copyBillingDetailsToCustomer = async (
+  uuid: string,
+  payment_method: Stripe.PaymentMethod
+) => {
+  const customer = payment_method.customer as string;
+  const { name, phone, address } = payment_method.billing_details;
+  if (!name || !phone || !address) return;
+  //@ts-ignore
+  await stripe.customers.update(customer, { name, phone, address });
+  const { error } = await supabaseAdmin
+    .from("users")
+    .update({
+      billing_address: { ...address },
+      payment_method: { ...payment_method[payment_method.type] },
+    })
+    .eq("id", uuid);
+  if (error) throw error;
+};
+
 const manageSubscriptionStatusChange = async (
   subscriptionId: string,
   customerId: string,
@@ -58,7 +77,6 @@ const manageSubscriptionStatusChange = async (
   if (noCustomerError) throw noCustomerError;
 
   const { id: uuid } = customerData!;
-
   const subscription = await stripe.subscriptions.retrieve(subscriptionId, {
     expand: ["default_payment_method"],
   });
@@ -95,6 +113,29 @@ const manageSubscriptionStatusChange = async (
         ? toDateTime(subscription.trial_end).toISOString()
         : null,
     };
+
+  const finishedSusbscriptionStatus = ["canceled", "unpaid", "past_due"];
+
+  if (finishedSusbscriptionStatus.includes(subscription.status)) {
+    const { error } = await supabaseAdmin
+      .from("users")
+      .update({ plan: "free" })
+      .eq("stripe_customer_id", customerId);
+    if (error) {
+      console.log({ subscriptionDeletedError: error });
+    }
+  }
+
+  if (subscription.status === "active" || subscription.status === "trialing") {
+    const price = (subscription.items.data[0].price.unit_amount ?? 0) / 100;
+    const { error } = await supabaseAdmin
+      .from("users")
+      .update({ plan: price === 15 ? "monthly" : "annually" })
+      .eq("stripe_customer_id", customerId);
+    if (error) {
+      console.log({ subscriptionCreatedError: error });
+    }
+  }
 
   const { error } = await supabaseAdmin
     .from("subscriptions")

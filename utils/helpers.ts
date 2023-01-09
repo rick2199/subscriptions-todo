@@ -1,41 +1,60 @@
 import { ProductWithPrice } from "./stripe.types";
 import { supabase } from "../lib/supabase";
-import { SupabaseClient } from "@supabase/supabase-js";
-import { Database } from "./database.types";
-
-export type Users = Database["public"]["Tables"]["users"]["Row"];
+import { Users } from "./database.types";
 
 export const toDateTime = (secs: number) => {
-  var t = new Date("1970-01-01T00:30:00Z"); // Unix epoch start.
+  var t = new Date("1970-01-01T00:30:00Z");
   t.setSeconds(secs);
   return t;
 };
 
-export const getActiveProductsWithPrices = async (): Promise<
+export interface Menu {
+  label: string;
+  children?: Menu[];
+  path: string;
+  target?: boolean;
+}
+
+export const getActivePlansWithPrices = async (): Promise<
   ProductWithPrice[]
 > => {
   const { data, error } = await supabase
     .from("products")
     .select("*, prices(*)")
     .eq("active", true)
-    .eq("prices.active", true)
-    .order("metadata->index")
-    .order("unit_amount", { foreignTable: "prices" });
+    .eq("prices.active", true);
 
   if (error) {
     throw error;
   }
 
-  return (data as any) || [];
+  const subscriptionPlanWithPrice = data.map((product: any) => {
+    return {
+      ...product,
+      prices: product.prices?.map((price: any) => {
+        return {
+          id: price.id,
+          currency: price.currency,
+          unit_amount: price.unit_amount,
+        };
+      }),
+    };
+  });
+
+  const freePLan = subscriptionPlanWithPrice.filter(
+    (plan) => plan.name === "Free Plan"
+  );
+  const monthlyPlan = subscriptionPlanWithPrice.filter(
+    (plan) => plan.name === "Monthly Plan"
+  );
+
+  subscriptionPlanWithPrice.splice(0, 1, ...freePLan);
+
+  subscriptionPlanWithPrice.splice(1, 1, ...monthlyPlan);
+  return subscriptionPlanWithPrice || [];
 };
 
-export const getProfile: any = async ({
-  userId,
-  supabase,
-}: {
-  userId: string;
-  supabase: SupabaseClient<any, "public", any>;
-}) => {
+export const getProfile: any = async ({ userId }: { userId: string }) => {
   if (!userId) throw new Error("No user");
 
   let { data, error, status } = await supabase
@@ -59,32 +78,79 @@ export const passwordRegex = /^.{6,}$/;
 export const usernameRegex = /^[a-zA-Z0-9]+$/;
 
 export const updateProfile: any = async ({
-  userId,
+  user,
   full_name,
   avatar_url,
-  supabase,
+  email,
 }: {
-  userId: string;
+  user: Users;
   full_name: Users["full_name"];
   avatar_url: Users["avatar_url"];
-  supabase: SupabaseClient<any, "public", any>;
+  email: Users["email"];
 }) => {
   try {
-    if (!userId) throw new Error("No user");
+    if (!user.id) throw new Error("No user");
     const updates = {
-      id: userId,
+      id: user.id,
       full_name,
       avatar_url,
+      email,
     };
     let { error } = await supabase
       .from("users")
       .upsert(updates)
-      .eq("id", userId);
+      .eq("id", user.id);
 
     if (error) throw error;
-    alert("Profile updated!");
+    window.location.reload();
   } catch (error) {
-    alert("Error updating the data!");
+    console.log(error);
+  }
+};
+
+export const downloadImage: any = async (path: string) => {
+  if (!path) return;
+  try {
+    const { data, error } = await supabase.storage
+      .from("avatars")
+      .download(path);
+    if (error) {
+      throw error;
+    }
+    return URL.createObjectURL(data);
+  } catch (error) {
+    console.log("Error downloading image: ", error);
+  }
+};
+
+export const uploadAvatar = async ({
+  event,
+  uid,
+  onUpload,
+}: {
+  event: any;
+  uid: string;
+  onUpload: (filePath: string) => void;
+}) => {
+  try {
+    if (!event.target.files || event.target.files.length === 0) {
+      throw new Error("You must select an image to upload.");
+    }
+    const file = event.target.files[0];
+    const fileExt = file.name.split(".").pop();
+    const fileName = `${uid}.${fileExt}`;
+    const filePath = `${fileName}`;
+
+    let { error: uploadError } = await supabase.storage
+      .from("avatars")
+      .upload(filePath, file, { upsert: true });
+
+    if (uploadError) {
+      throw uploadError;
+    }
+    onUpload(filePath);
+    return true;
+  } catch (error) {
     console.log(error);
   }
 };

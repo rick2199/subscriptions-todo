@@ -8,13 +8,13 @@ interface HeadingProps {
   className?: string;
 }
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ["latin"], weight: ["700", "800"] });
 
 const Heading: React.FC<HeadingProps> = ({ children, size, className, as }) => {
   const Component = as || "h5";
   return (
     <Component
-      className={`${className?.includes("font-normal") ? "" : "font-bold"}
+      className={`font-bold
       ${size === "3xl" ? "text-[48px] leading-[56px]" : ""}
        ${size === "2xl" ? "text-[40px] leading-[48px]" : ""} ${
         size === "xl" ? "text-[32px] leading-10" : ""

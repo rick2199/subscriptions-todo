@@ -5,15 +5,15 @@ import { Button } from "@/components/atoms/button";
 import { TextField } from "@/components/molecules/form-fields";
 import { useRouter } from "next/router";
 import { FormDescription, FormInfo } from "./form-stuff";
-import { useSupabaseClient } from "@supabase/auth-helpers-react";
+import { useReactSupabaseClient } from "@/hooks/useReactSupabaseClient";
 
 const SignupForm = () => {
-  const supabase = useSupabaseClient();
+  const { supabase } = useReactSupabaseClient();
   const [isEmailSent, setEmailSent] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const router = useRouter();
   return (
-    <div className=" w-full md:px-6 lg:px-0 bg-white text-center">
+    <div className=" w-full bg-white text-center">
       {!isEmailSent ? (
         <Formik
           initialValues={{
@@ -39,17 +39,30 @@ const SignupForm = () => {
           }}
           onSubmit={async ({ password, email }, { resetForm, setErrors }) => {
             setLoading(true);
+            const { data: dbUser } = await supabase
+              .from("users")
+              .select("email")
+              .eq("email", email.toLowerCase())
+              .single();
+
+            if (dbUser) {
+              setErrors({ email: "Email already registered" });
+              setLoading(false);
+              return;
+            }
             const { data, error } = await supabase.auth.signUp({
               email,
               password,
               options: {
                 data: {
-                  email,
+                  email: email.toLowerCase(),
                 },
               },
             });
             if (error) {
               setErrors({ password: error.message });
+              setLoading(false);
+              return;
             }
             if (data.user) {
               resetForm();

@@ -40,6 +40,7 @@ const webhookHandler = async (req: NextApiRequest, res: NextApiResponse) => {
     const sig = req.headers["stripe-signature"];
     const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
     let event: Stripe.Event;
+    console.log("here");
 
     try {
       if (!sig || !webhookSecret) return;

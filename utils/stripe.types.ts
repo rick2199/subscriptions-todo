@@ -5,6 +5,12 @@ export interface PageMeta {
   cardImage: string;
 }
 
+export interface SubscriptionPrice {
+  id: string;
+  currency: string;
+  unit_amount: number;
+}
+
 export interface Customer {
   id: string;
   stripe_customer_id?: string;

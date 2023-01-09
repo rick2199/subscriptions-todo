@@ -1,109 +1,76 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { useSupabaseClient } from "@supabase/auth-helpers-react";
-import { Database } from "../utils/database.types";
+import React from "react";
+import { Users } from "../utils/database.types";
 import Image from "next/image";
-type Users = Database["public"]["Tables"]["users"]["Row"];
+import { useMachine } from "@xstate/react";
+import avatarMachine from "@/machines/avatar-machine";
+import { downloadImage, uploadAvatar } from "@/utils/helpers";
+import { Loader } from "./atoms/loader";
 
 export default function Avatar({
   uid,
   url,
-  size,
   onUpload,
 }: {
   uid: string;
   url: Users["avatar_url"];
-  size: number;
   onUpload: (url: string) => void;
 }) {
-  const supabase = useSupabaseClient<Database>();
-  const [avatarUrl, setAvatarUrl] = useState<Users["avatar_url"]>(null);
-  const [uploading, setUploading] = useState(false);
-
-  const downloadImage = useCallback(
-    async (path: string) => {
-      try {
-        const { data, error } = await supabase.storage
-          .from("avatars")
-          .download(path);
-        if (error) {
-          throw error;
-        }
-        const url = URL.createObjectURL(data);
-        setAvatarUrl(url);
-      } catch (error) {
-        console.log("Error downloading image: ", error);
-      }
+  const [state, send] = useMachine(avatarMachine, {
+    services: {
+      fetchAvatar: downloadImage(url),
+      updateAvatarSrc: async (context, event) => {
+        return uploadAvatar({
+          event: context.fieldEvent,
+          onUpload,
+          uid,
+        });
+      },
     },
-    [supabase.storage]
-  );
+  });
 
-  useEffect(() => {
-    if (url) downloadImage(url);
-  }, [url]);
-
-  const uploadAvatar: React.ChangeEventHandler<HTMLInputElement> = async (
-    event
-  ) => {
-    try {
-      setUploading(true);
-
-      if (!event.target.files || event.target.files.length === 0) {
-        throw new Error("You must select an image to upload.");
-      }
-
-      const file = event.target.files[0];
-      const fileExt = file.name.split(".").pop();
-      const fileName = `${uid}.${fileExt}`;
-      const filePath = `${fileName}`;
-
-      let { error: uploadError } = await supabase.storage
-        .from("avatars")
-        .upload(filePath, file, { upsert: true });
-
-      if (uploadError) {
-        throw uploadError;
-      }
-
-      onUpload(filePath);
-    } catch (error) {
-      alert("Error uploading avatar!");
-      console.log(error);
-    } finally {
-      setUploading(false);
-    }
-  };
+  const isLoading = state.matches("iddle");
+  const isUpdating = state.matches("updateAvatar");
+  const avatarUrl = state?.context?.avatarUrl;
 
   return (
-    <div>
+    <div className="flex flex-col justify-center items-center gap-6">
       {avatarUrl ? (
         <Image
           src={avatarUrl}
           alt="Avatar"
-          width={200}
-          height={200}
-          className="avatar image"
-          style={{ height: size, width: size }}
+          width={150}
+          height={150}
+          className="h-[150px] w-[150px] rounded-full"
         />
+      ) : isLoading ? (
+        <div className="h-[150px] w-[150px] flex items-center justify-center">
+          <Loader />
+        </div>
       ) : (
-        <div
-          className="avatar no-image"
-          style={{ height: size, width: size }}
+        <Image
+          src="/avatar-placeholder.png"
+          alt="avatar-placeholder"
+          width={150}
+          height={150}
+          className="h-[150px] w-[150px]"
         />
       )}
-      <div style={{ width: size }}>
-        <label className="button primary block" htmlFor="single">
-          {uploading ? "Uploading ..." : "Upload"}
+      <div>
+        <label
+          className="bg-primary-light cursor-pointer px-4 py-2 rounded-md"
+          htmlFor="single"
+        >
+          {isUpdating ? "Uploading ..." : "Upload"}
         </label>
         <input
-          style={{
-            visibility: "hidden",
-            position: "absolute",
-          }}
+          className="absolute hidden"
           type="file"
           id="single"
           accept="image/*"
-          onChange={uploadAvatar}
-          disabled={uploading}
+          onChange={(event) =>
+            send({ type: "avatarUrlInputChanged", fieldEvent: event })
+          }
+          disabled={isUpdating}
         />
       </div>
     </div>
