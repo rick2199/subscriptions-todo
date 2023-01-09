@@ -1,4 +1,4 @@
-import Avatar from "@/components/avatar";
+import { Avatar } from "@/components/atoms/avatar";
 import { useMachine } from "@xstate/react";
 import authenticationMachine from "@/machines/auth-machine";
 import { GetServerSidePropsContext } from "next";

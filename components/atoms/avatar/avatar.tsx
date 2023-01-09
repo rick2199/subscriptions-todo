@@ -1,10 +1,10 @@
 import React from "react";
-import { Users } from "../utils/database.types";
+import { Users } from "../../../utils/database.types";
 import Image from "next/image";
 import { useMachine } from "@xstate/react";
 import avatarMachine from "@/machines/avatar-machine";
 import { downloadImage, uploadAvatar } from "@/utils/helpers";
-import { Loader } from "./atoms/loader";
+import { Loader } from "../loader";
 
 export default function Avatar({
   uid,
