@@ -1,5 +1,14 @@
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
+
+## Demo URL
+
+https://subscriptions-todo.vercel.app
+
+## Architecture
+
+![alt text](https://github.com/rick2199/subscriptions-todo/blob/main/public/diagram.png?raw=true)
+
 ## Getting Started
 
 First, run the development server:
