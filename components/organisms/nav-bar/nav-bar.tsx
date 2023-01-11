@@ -60,6 +60,11 @@ const NavBar: React.FC<Props> = ({ user }) => {
               <Link href={"/"} className="hidden lg:block">
                 <Heading size="lg">Home</Heading>
               </Link>
+              {user.plan === "free" && (
+                <Link href={"/pricing"}>
+                  <Heading size="lg">Pricing</Heading>
+                </Link>
+              )}
               {pages.map((page) => (
                 <Link href={page.path} key={page.label}>
                   <Heading size="lg">{page.label}</Heading>
@@ -135,6 +140,11 @@ const NavBar: React.FC<Props> = ({ user }) => {
               className="fixed top-[72px] left-0 z-40 h-[calc(100vh-calc(100vh-100%+56px))] w-screen bg-white lg:hidden"
             >
               <div className=" flex items-center h-[calc(100vh-308px)] w-full flex-col overflow-auto">
+                {user?.plan === "free" && (
+                  <Link href={"/pricing"} className="text-primary-light my-4">
+                    <Heading size="lg">Pricing</Heading>
+                  </Link>
+                )}
                 {pages.map((menu, index) => (
                   <NavItem
                     menu={menu}

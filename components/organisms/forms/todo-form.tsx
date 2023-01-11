@@ -5,14 +5,15 @@ import { ComboBox } from "@/components/molecules/combobox";
 import { Heading } from "@/components/atoms/heading/";
 import { TextField } from "@/components/molecules/form-fields";
 import { ErrorMessage } from "@/components/atoms/error-message";
-import { useMachine } from "@xstate/react";
-import { todosMachine } from "@/machines/todo-machine";
 import { RadioGroups } from "@/components/molecules/radio-group";
 import { useReactSupabaseClient } from "@/hooks/useReactSupabaseClient";
 import { TodoPriority, Users } from "@/utils/database.types";
 import { TodoContext } from "@/context/todo-context";
 import { Loader } from "@/components/atoms/loader";
 import axios from "axios";
+import { useMachine } from "@xstate/react";
+import todoMachine from "@/machines/todos-machine";
+import { Todo } from "@/machines/todos-machine";
 
 interface Props {
   user: Users | null;
@@ -20,7 +21,7 @@ interface Props {
 
 const priorities = ["Low", "Medium", "High"];
 
-const todos = new Set<string>([]);
+const saveTodo = ({ todo }: { todo: Todo | null }) => {};
 
 const TodoForm: React.FC<Props> = ({ user }) => {
   const [selectedPriority, setSelectedPriority] = useState(priorities[0]);
@@ -30,20 +31,13 @@ const TodoForm: React.FC<Props> = ({ user }) => {
   const { supabase } = useReactSupabaseClient();
   const [isLoading, setLoading] = useState<boolean>(false);
 
-  //TODO=CHANGE REACT STATES TO MACHINES
-  // const [state, send] = useMachine(todosMachine, {
-  //   services: {
-  //     loadTodos: async () => {
-  //       return Array.from(todos);
-  //     },
-  //     saveTodo: async (context, event) => {
-  //       todos.add(context.createNewTodoFormInput)
-  //     },
-  //     deleteTodo: async (context, event) => {
-  //       todos.delete(event.todo);
-  //     },
-  //   },
-  // });
+  const [state, send] = useMachine(todoMachine, {
+    services: {
+      saveTodo: async (context, event) => {
+        return saveTodo({ todo: context?.createNewTodo });
+      },
+    },
+  });
 
   return (
     <Formik

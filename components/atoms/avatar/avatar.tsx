@@ -68,7 +68,7 @@ export default function Avatar({
           id="single"
           accept="image/*"
           onChange={(event) =>
-            send({ type: "avatarUrlInputChanged", fieldEvent: event })
+            send({ type: "avatarUrlInputChange", fieldEvent: event })
           }
           disabled={isUpdating}
         />

@@ -1,6 +1,7 @@
 import { ProductWithPrice } from "./stripe.types";
 import { supabase } from "../lib/supabase";
-import { Users } from "./database.types";
+import { TodoPriority, Users } from "./database.types";
+import { Todo } from "@/machines/todos-machine";
 
 export const toDateTime = (secs: number) => {
   var t = new Date("1970-01-01T00:30:00Z");
@@ -102,7 +103,6 @@ export const updateProfile: any = async ({
       .eq("id", user.id);
 
     if (error) throw error;
-    window.location.reload();
   } catch (error) {
     console.log(error);
   }
@@ -153,4 +153,27 @@ export const uploadAvatar = async ({
   } catch (error) {
     console.log(error);
   }
+};
+
+export const saveTodo = async ({
+  todo,
+  user,
+}: {
+  todo: Todo | null;
+  user: Users;
+}) => {
+  const todoData = {
+    category_id: todo?.categoryId as string,
+    user_id: user?.id,
+    todo: todo?.task,
+    priority: todo?.priority.toLowerCase() as TodoPriority,
+    started_at: new Date().toISOString(),
+  };
+
+  const { error } = await supabase.from("todos").insert({ ...todoData });
+  if (error) {
+    console.log({ error });
+    return false;
+  }
+  return true;
 };

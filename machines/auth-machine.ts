@@ -111,7 +111,7 @@ const authenticationMachine =
             src: "updateUserSrc",
             onDone: [
               {
-                target: "#userProfile.fetchingUser",
+                target: "#userProfile.iddle",
               },
             ],
             onError: [

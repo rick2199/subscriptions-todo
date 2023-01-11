@@ -8,7 +8,7 @@ export type AvatarMachineContext = {
 
 export type AvatarMachineEvent =
   | {
-      type: "avatarUrlInputChanged";
+      type: "avatarUrlInputChange";
       fieldEvent: any;
     }
   | {
@@ -68,7 +68,7 @@ export const avatarMachine =
           states: {
             showingAvatarUrlInput: {
               on: {
-                avatarUrlInputChanged: {
+                avatarUrlInputChange: {
                   actions: "assignFieldEventToContext",
                   target: "#avatar.updateAvatar",
                 },
@@ -121,7 +121,7 @@ export const avatarMachine =
           return {};
         }),
         assignFieldEventToContext: assign((context, event) => {
-          if (event.type === "avatarUrlInputChanged") {
+          if (event.type === "avatarUrlInputChange") {
             return {
               fieldEvent: event.fieldEvent,
             };
